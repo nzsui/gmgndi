@@ -13,6 +13,14 @@ export default function Site() {
     const saved = window.localStorage.getItem("gmgndi-lang");
     if (saved === "id" || saved === "en") setLang(saved);
 
+    if (window.location.hash) {
+      const id = window.location.hash.slice(1);
+      window.history.replaceState(null, "", window.location.pathname);
+      requestAnimationFrame(() => {
+        document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+
     const onScroll = () => setScrolled(window.scrollY > 12);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -54,23 +62,33 @@ export default function Site() {
     document.documentElement.lang = next === "id" ? "id" : "en";
   };
 
+  const goTo = (id: string) => {
+    setMenuOpen(false);
+    if (id === "top") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   const navLinks = [
-    { href: "#tentang", label: t.nav.about },
-    { href: "#kerja", label: t.nav.work },
-    { href: "#proyek", label: t.nav.projects },
-    { href: "#galeri", label: t.nav.gallery },
-    { href: "#kontak", label: t.nav.contact },
+    { id: "tentang", label: t.nav.about },
+    { id: "kerja", label: t.nav.work },
+    { id: "proyek", label: t.nav.projects },
+    { id: "galeri", label: t.nav.gallery },
+    { id: "kontak", label: t.nav.contact },
   ];
 
   return (
     <>
       <div className="grain" aria-hidden />
-      <a
-        href="#tentang"
+      <button
+        type="button"
+        onClick={() => goTo("tentang")}
         className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:bg-foreground focus:px-3 focus:py-2 focus:text-background"
       >
         Skip to content
-      </a>
+      </button>
 
       <header
         className={`fixed inset-x-0 top-0 z-40 transition-colors ${
@@ -80,18 +98,23 @@ export default function Site() {
         }`}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 md:px-8">
-          <a href="#top" className="font-mono text-sm tracking-[0.18em]">
+          <button
+            type="button"
+            onClick={() => goTo("top")}
+            className="font-mono text-sm tracking-[0.18em]"
+          >
             gmgndi
-          </a>
+          </button>
           <nav className="hidden items-center gap-8 text-sm text-muted md:flex">
             {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
+              <button
+                key={link.id}
+                type="button"
+                onClick={() => goTo(link.id)}
                 className="transition-colors hover:text-foreground"
               >
                 {link.label}
-              </a>
+              </button>
             ))}
           </nav>
           <div className="flex items-center gap-3">
@@ -142,14 +165,14 @@ export default function Site() {
           >
             <div className="flex flex-col gap-5 text-lg">
               {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setMenuOpen(false)}
-                  className="text-muted transition-colors hover:text-foreground"
+                <button
+                  key={link.id}
+                  type="button"
+                  onClick={() => goTo(link.id)}
+                  className="text-left text-muted transition-colors hover:text-foreground"
                 >
                   {link.label}
-                </a>
+                </button>
               ))}
             </div>
           </nav>
@@ -186,18 +209,20 @@ export default function Site() {
                 {t.hero.lead}
               </p>
               <div className="animate-rise animate-rise-delay-4 mt-10 flex flex-wrap items-center gap-4">
-                <a
-                  href="#kerja"
+                <button
+                  type="button"
+                  onClick={() => goTo("kerja")}
                   className="border border-foreground/30 bg-foreground px-5 py-3 text-sm tracking-wide text-background transition hover:bg-gold hover:border-gold"
                 >
                   {t.nav.work}
-                </a>
-                <a
-                  href="#kontak"
+                </button>
+                <button
+                  type="button"
+                  onClick={() => goTo("kontak")}
                   className="border border-line px-5 py-3 text-sm tracking-wide text-foreground transition hover:border-gold hover:text-gold"
                 >
                   {t.nav.contact}
-                </a>
+                </button>
               </div>
             </div>
 
