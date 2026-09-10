@@ -4,461 +4,202 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { copy, socials, type Lang } from "@/lib/content";
 
+type Theme = "light" | "dark";
+
 export default function Site() {
   const [lang, setLang] = useState<Lang>("id");
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<Theme>("light");
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("gmgndi-lang");
-    if (saved === "id" || saved === "en") setLang(saved);
+    const savedLang = window.localStorage.getItem("gmgndi-lang");
+    if (savedLang === "id" || savedLang === "en") setLang(savedLang);
 
-    if (window.location.hash) {
-      const id = window.location.hash.slice(1);
-      window.history.replaceState(null, "", window.location.pathname);
-      requestAnimationFrame(() => {
-        document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-      });
-    }
-
-    const onScroll = () => setScrolled(window.scrollY > 12);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const savedTheme = window.localStorage.getItem("gmgndi-theme") as Theme | null;
+    const initial: Theme =
+      savedTheme === "light" || savedTheme === "dark"
+        ? savedTheme
+        : window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
+    applyTheme(initial);
+    setTheme(initial);
+    setReady(true);
   }, []);
 
-  useEffect(() => {
-    const nodes = document.querySelectorAll(".reveal");
-    if (!nodes.length) return;
+  const applyTheme = (next: Theme) => {
+    document.documentElement.classList.toggle("dark", next === "dark");
+  };
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
-            observer.unobserve(entry.target);
-          }
-        }
-      },
-      { threshold: 0.16, rootMargin: "0px 0px -8% 0px" },
-    );
+  const toggleTheme = () => {
+    const next: Theme = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    applyTheme(next);
+    window.localStorage.setItem("gmgndi-theme", next);
+  };
 
-    nodes.forEach((node) => observer.observe(node));
-    return () => observer.disconnect();
-  }, [lang]);
-
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [menuOpen]);
+  const switchLang = () => {
+    const next: Lang = lang === "id" ? "en" : "id";
+    setLang(next);
+    window.localStorage.setItem("gmgndi-lang", next);
+    document.documentElement.lang = next;
+  };
 
   const t = copy[lang];
 
-  const switchLang = (next: Lang) => {
-    setLang(next);
-    window.localStorage.setItem("gmgndi-lang", next);
-    document.documentElement.lang = next === "id" ? "id" : "en";
-  };
-
-  const goTo = (id: string) => {
-    setMenuOpen(false);
-    if (id === "top") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  const navLinks = [
-    { id: "tentang", label: t.nav.about },
-    { id: "kerja", label: t.nav.work },
-    { id: "proyek", label: t.nav.projects },
-    { id: "galeri", label: t.nav.gallery },
-    { id: "kontak", label: t.nav.contact },
-  ];
-
   return (
     <>
-      <div className="grain" aria-hidden />
-      <button
-        type="button"
-        onClick={() => goTo("tentang")}
-        className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:bg-foreground focus:px-3 focus:py-2 focus:text-background"
-      >
-        Skip to content
-      </button>
-
-      <header
-        className={`fixed inset-x-0 top-0 z-40 transition-colors ${
-          scrolled || menuOpen
-            ? "bg-background/85 backdrop-blur-md"
-            : "bg-transparent"
-        }`}
-      >
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-4 md:px-8">
-          <button
-            type="button"
-            onClick={() => goTo("top")}
-            className="font-mono text-sm tracking-[0.18em]"
-          >
-            gmgndi
-          </button>
-          <nav className="hidden items-center gap-8 text-sm text-muted md:flex">
-            {navLinks.map((link) => (
-              <button
-                key={link.id}
-                type="button"
-                onClick={() => goTo(link.id)}
-                className="transition-colors hover:text-foreground"
-              >
-                {link.label}
-              </button>
-            ))}
-          </nav>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1 font-mono text-[11px] tracking-[0.16em] text-muted">
-              <button
-                type="button"
-                onClick={() => switchLang("id")}
-                className={`px-1.5 py-1 transition-colors ${lang === "id" ? "text-foreground" : "hover:text-foreground"}`}
-                aria-pressed={lang === "id"}
-              >
-                ID
-              </button>
-              <span aria-hidden>/</span>
-              <button
-                type="button"
-                onClick={() => switchLang("en")}
-                className={`px-1.5 py-1 transition-colors ${lang === "en" ? "text-foreground" : "hover:text-foreground"}`}
-                aria-pressed={lang === "en"}
-              >
-                EN
-              </button>
-            </div>
+      <nav className="nav-bar">
+        <div className="container-site flex h-14 items-center justify-between">
+          <a href="/" className="flex items-center gap-2.5 text-foreground no-underline">
+            <Image
+              src="/images/gmgndi-pfp.png"
+              alt=""
+              width={28}
+              height={28}
+              className="rounded-full object-cover"
+              priority
+            />
+            <span className="text-[0.95rem] font-semibold tracking-tight">
+              {t.brand}
+            </span>
+          </a>
+          <div className="flex items-center gap-1">
             <button
               type="button"
-              className="relative h-9 w-9 md:hidden"
-              aria-expanded={menuOpen}
-              aria-controls="mobile-nav"
-              aria-label={menuOpen ? "Close menu" : "Open menu"}
-              onClick={() => setMenuOpen((open) => !open)}
+              onClick={switchLang}
+              className="lang-btn text-[0.7rem] font-semibold tracking-wide"
+              aria-label="Switch language"
+              title="Switch language"
             >
-              <span
-                className={`absolute left-2 right-2 top-[13px] h-px bg-foreground transition ${menuOpen ? "translate-y-[5px] rotate-45" : ""}`}
-              />
-              <span
-                className={`absolute left-2 right-2 top-[18px] h-px bg-foreground transition ${menuOpen ? "opacity-0" : ""}`}
-              />
-              <span
-                className={`absolute left-2 right-2 top-[23px] h-px bg-foreground transition ${menuOpen ? "-translate-y-[5px] -rotate-45" : ""}`}
-              />
+              {t.footer.lang}
+            </button>
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="theme-btn"
+              aria-label="Toggle dark mode"
+              title="Toggle dark mode"
+            >
+              {ready && theme === "dark" ? (
+                <SunIcon />
+              ) : (
+                <MoonIcon />
+              )}
             </button>
           </div>
         </div>
+      </nav>
 
-        {menuOpen ? (
-          <nav
-            id="mobile-nav"
-            className="border-t border-line bg-background/95 px-5 py-6 md:hidden"
-          >
-            <div className="flex flex-col gap-5 text-lg">
-              {navLinks.map((link) => (
-                <button
-                  key={link.id}
-                  type="button"
-                  onClick={() => goTo(link.id)}
-                  className="text-left text-muted transition-colors hover:text-foreground"
-                >
-                  {link.label}
-                </button>
+      <main id="main-content">
+        <div className="container-site pt-10 pb-6 sm:pt-14">
+          <div className="lead-row">
+            <div>
+              <h1 className="m-0 mb-3 text-[1.55rem] font-bold leading-tight text-foreground sm:text-[1.7rem]">
+                {t.hero.title}
+              </h1>
+              <p className="m-0 text-[0.98rem] leading-7 text-muted">
+                {t.hero.lead}
+                <br />
+                <i className="text-subtle">{t.hero.note}</i>
+              </p>
+            </div>
+            <Image
+              src="/images/gmgndi-pfp.png"
+              alt="gmgndi"
+              width={200}
+              height={200}
+              priority
+              className="h-[160px] w-[160px] justify-self-start rounded-full object-cover sm:h-[200px] sm:w-[200px] sm:justify-self-end"
+            />
+          </div>
+        </div>
+
+        <div className="container-site pb-4 pt-8">
+          <section className="mb-12">
+            <h2 className="m-0 mb-5 flex flex-wrap items-center text-[1.35rem] font-bold text-foreground">
+              {t.projects.title}
+              <span className="view-chip">{t.projects.items.length}</span>
+            </h2>
+            <div>
+              {t.projects.items.map((item) => (
+                <div key={item.title} className="list-row text-muted">
+                  <h3>{item.title}</h3>
+                  <p>{item.detail}</p>
+                </div>
               ))}
             </div>
-          </nav>
-        ) : null}
-      </header>
+          </section>
 
-      <main id="top">
-        <section className="relative isolate min-h-[100svh] overflow-hidden">
-          <div className="absolute inset-0 -z-10">
-            <Image
-              src="/images/gmgndi-validator.png"
-              alt=""
-              fill
-              priority
-              sizes="100vw"
-              className="hero-media object-cover object-center"
-            />
-            <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(12,11,10,0.55)_0%,rgba(12,11,10,0.72)_45%,rgba(12,11,10,0.96)_100%)]" />
-            <div className="hero-wash absolute inset-0 bg-[radial-gradient(ellipse_at_70%_20%,rgba(196,165,116,0.18),transparent_55%)]" />
-          </div>
-
-          <div className="mx-auto grid min-h-[100svh] max-w-6xl items-center gap-10 px-5 pb-16 pt-28 md:grid-cols-[1.2fr_0.8fr] md:px-8 md:pb-20 md:pt-24 lg:gap-16">
+          <section className="mb-12">
+            <h2 className="m-0 mb-5 text-[1.35rem] font-bold text-foreground">
+              {t.focus.title}
+            </h2>
             <div>
-              <p className="animate-rise font-mono text-[11px] tracking-[0.22em] text-gold uppercase">
-                {t.hero.kicker}
-              </p>
-              <h1 className="animate-rise animate-rise-delay-1 mt-5 font-serif text-6xl leading-[0.9] tracking-tight text-foreground md:text-8xl">
-                gmgndi
-              </h1>
-              <p className="animate-rise animate-rise-delay-2 mt-5 max-w-lg font-serif text-2xl leading-snug text-foreground/90 md:text-3xl">
-                {t.hero.title}
-              </p>
-              <p className="animate-rise animate-rise-delay-3 mt-6 max-w-md text-base leading-7 text-muted md:text-lg md:leading-8">
-                {t.hero.lead}
-              </p>
-              <div className="animate-rise animate-rise-delay-4 mt-10 flex flex-wrap items-center gap-4">
-                <button
-                  type="button"
-                  onClick={() => goTo("kerja")}
-                  className="border border-foreground/30 bg-foreground px-5 py-3 text-sm tracking-wide text-background transition hover:bg-gold hover:border-gold"
-                >
-                  {t.nav.work}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => goTo("kontak")}
-                  className="border border-line px-5 py-3 text-sm tracking-wide text-foreground transition hover:border-gold hover:text-gold"
-                >
-                  {t.nav.contact}
-                </button>
-              </div>
+              {t.focus.items.map((item) => (
+                <div key={item.title} className="list-row text-muted">
+                  <h3>{item.title}</h3>
+                  <p>{item.detail}</p>
+                </div>
+              ))}
             </div>
+          </section>
 
-            <figure className="animate-rise animate-rise-delay-2 justify-self-start md:justify-self-end">
-              <div className="relative aspect-square w-56 overflow-hidden rounded-sm border border-line shadow-[0_30px_80px_rgba(0,0,0,0.55)] sm:w-64 md:w-72 lg:w-80">
-                <Image
-                  src="/images/gmgndi-pfp.png"
-                  alt="NFT profile picture gmgndi"
-                  fill
-                  priority
-                  loading="eager"
-                  sizes="(max-width: 768px) 256px, 320px"
-                  className="object-cover"
-                />
-              </div>
-              <figcaption className="mt-3 font-mono text-[11px] tracking-[0.18em] text-muted uppercase">
-                {t.hero.pfpCaption}
-              </figcaption>
-            </figure>
-          </div>
-        </section>
-
-        <section className="border-y border-line">
-          <div className="mx-auto grid max-w-6xl grid-cols-2 md:grid-cols-4">
-            {t.stats.map((stat, i) => (
-              <div
-                key={stat.label}
-                className={`reveal px-5 py-8 md:px-8 ${i % 2 === 1 ? "border-l border-line" : ""} ${i > 1 ? "border-t border-line md:border-t-0" : ""} ${i === 2 || i === 3 ? "md:border-l md:border-line" : ""}`}
-                style={{ transitionDelay: `${i * 80}ms` }}
-              >
-                <p className="font-serif text-3xl text-foreground">{stat.value}</p>
-                <p className="mt-2 text-sm text-muted">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section
-          id="tentang"
-          className="mx-auto max-w-6xl scroll-mt-24 px-5 py-24 md:px-8 md:py-32"
-        >
-          <p className="reveal font-mono text-[11px] tracking-[0.22em] text-gold uppercase">
-            {t.about.kicker}
-          </p>
-          <div className="mt-6 grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20">
-            <h2 className="reveal font-serif text-4xl leading-tight md:text-5xl">
+          <section className="mb-14">
+            <h2 className="m-0 mb-5 text-[1.35rem] font-bold text-foreground">
               {t.about.title}
             </h2>
-            <div className="space-y-6 text-base leading-8 text-muted md:text-[17px]">
-              {t.about.paragraphs.map((p, i) => (
-                <p
-                  key={p}
-                  className="reveal"
-                  style={{ transitionDelay: `${i * 90}ms` }}
-                >
+            <div className="space-y-4 text-[0.98rem] leading-7 text-muted">
+              {t.about.paragraphs.map((p) => (
+                <p key={p} className="m-0">
                   {p}
                 </p>
               ))}
             </div>
-          </div>
-        </section>
+          </section>
+        </div>
+      </main>
 
-        <section id="kerja" className="scroll-mt-24 border-t border-line">
-          <div className="mx-auto max-w-6xl px-5 py-24 md:px-8 md:py-32">
-            <p className="reveal font-mono text-[11px] tracking-[0.22em] text-gold uppercase">
-              {t.work.kicker}
-            </p>
-            <h2 className="reveal mt-6 max-w-xl font-serif text-4xl leading-tight md:text-5xl">
-              {t.work.title}
-            </h2>
-
-            <div className="mt-16 space-y-24">
-              {t.work.items.map((item, index) => (
-                <article
-                  key={item.id}
-                  className={`reveal grid items-center gap-10 lg:grid-cols-2 lg:gap-16 ${
-                    index % 2 === 1 ? "lg:[&>figure]:order-first" : ""
-                  }`}
-                >
-                  <div>
-                    <p className="font-mono text-[11px] tracking-[0.22em] text-muted">
-                      {item.index}
-                    </p>
-                    <h3 className="mt-3 font-serif text-3xl md:text-4xl">
-                      {item.title}
-                    </h3>
-                    <p className="mt-6 max-w-md text-base leading-8 text-muted">
-                      {item.body}
-                    </p>
-                  </div>
-                  <figure className="relative aspect-[16/10] overflow-hidden rounded-sm border border-line">
-                    <Image
-                      src={item.image}
-                      alt={item.imageAlt}
-                      fill
-                      sizes="(max-width: 1024px) 100vw, 50vw"
-                      className="object-cover transition-transform duration-700 hover:scale-[1.03]"
-                    />
-                  </figure>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="proyek" className="scroll-mt-24 border-t border-line">
-          <div className="mx-auto max-w-6xl px-5 py-24 md:px-8 md:py-32">
-            <p className="reveal font-mono text-[11px] tracking-[0.22em] text-gold uppercase">
-              {t.projects.kicker}
-            </p>
-            <h2 className="reveal mt-6 max-w-xl font-serif text-4xl leading-tight md:text-5xl">
-              {t.projects.title}
-            </h2>
-            <p className="reveal mt-6 max-w-xl text-base leading-8 text-muted">
-              {t.projects.lead}
-            </p>
-
-            <div className="mt-16 divide-y divide-line border-y border-line">
-              {t.projects.items.map((project, index) => (
-                <article
-                  key={project.id}
-                  className="reveal grid gap-8 py-12 md:grid-cols-[minmax(0,1fr)_280px] md:items-center md:gap-12"
-                  style={{ transitionDelay: `${index * 60}ms` }}
-                >
-                  <div>
-                    <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-                      <p className="font-mono text-[11px] tracking-[0.18em] text-muted">
-                        {String(index + 1).padStart(2, "0")}
-                      </p>
-                      <p className="font-mono text-[11px] tracking-[0.16em] text-gold">
-                        {project.year}
-                      </p>
-                    </div>
-                    <h3 className="mt-3 font-serif text-3xl md:text-4xl">
-                      {project.title}
-                    </h3>
-                    <p className="mt-2 text-sm tracking-wide text-muted">
-                      {project.subtitle}
-                    </p>
-                    <p className="mt-5 max-w-xl text-base leading-8 text-muted">
-                      {project.body}
-                    </p>
-                    <ul className="mt-6 flex flex-wrap gap-x-4 gap-y-2">
-                      {project.tags.map((tag) => (
-                        <li
-                          key={tag}
-                          className="font-mono text-[11px] tracking-[0.14em] text-foreground/70 uppercase"
-                        >
-                          {tag}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                  <figure className="relative aspect-[16/11] overflow-hidden rounded-sm border border-line md:aspect-square">
-                    <Image
-                      src={project.image}
-                      alt={project.imageAlt}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 280px"
-                      className="object-cover transition-transform duration-700 hover:scale-[1.03]"
-                    />
-                  </figure>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="galeri" className="scroll-mt-24 border-t border-line">
-          <div className="mx-auto max-w-6xl px-5 py-24 md:px-8 md:py-32">
-            <p className="reveal font-mono text-[11px] tracking-[0.22em] text-gold uppercase">
-              {t.gallery.kicker}
-            </p>
-            <h2 className="reveal mt-6 max-w-xl font-serif text-4xl leading-tight md:text-5xl">
-              {t.gallery.title}
-            </h2>
-
-            <div className="mt-14 grid grid-cols-2 gap-3 md:grid-cols-6 md:gap-4">
-              {t.gallery.items.map((item, i) => (
-                <figure
-                  key={item.src}
-                  className={`reveal group relative overflow-hidden rounded-sm border border-line ${
-                    i === 0
-                      ? "col-span-2 aspect-square md:col-span-3 md:row-span-2"
-                      : i === 1
-                        ? "aspect-[4/5] md:col-span-3 md:aspect-[16/10]"
-                        : "aspect-square md:col-span-2"
-                  }`}
-                  style={{ transitionDelay: `${i * 70}ms` }}
-                >
-                  <Image
-                    src={item.src}
-                    alt={item.alt}
-                    fill
-                    sizes="(max-width: 768px) 50vw, 33vw"
-                    className="object-cover transition-transform duration-700 group-hover:scale-[1.04]"
-                  />
-                  <figcaption className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent px-3 py-3 font-mono text-[11px] tracking-[0.16em] text-foreground uppercase">
-                    {item.caption}
-                  </figcaption>
-                </figure>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section id="kontak" className="scroll-mt-24 border-t border-line">
-          <div className="reveal mx-auto max-w-6xl px-5 py-24 md:px-8 md:py-32">
-            <p className="font-mono text-[11px] tracking-[0.22em] text-gold uppercase">
-              {t.contact.kicker}
-            </p>
-            <h2 className="mt-6 max-w-xl font-serif text-4xl leading-tight md:text-5xl">
-              {t.contact.title}
-            </h2>
-            <p className="mt-6 max-w-md text-base leading-8 text-muted">
-              {t.contact.body}
-            </p>
+      <footer className="border-t border-line py-10 text-center text-[0.85rem] text-subtle">
+        <div className="container-site">
+          <p className="m-0 mb-3">{t.footer.credit}</p>
+          <p className="m-0">
             <a
               href={socials.x}
               target="_blank"
               rel="noreferrer"
-              className="mt-10 inline-flex items-center gap-3 border border-line px-5 py-3 text-sm tracking-wide transition hover:border-gold hover:text-gold"
+              className="text-subtle no-underline transition-colors hover:text-hover"
             >
-              {t.contact.cta}
-              <span className="font-mono text-xs">{socials.handle}</span>
+              /{socials.handle}
             </a>
-          </div>
-        </section>
-      </main>
-
-      <footer className="border-t border-line">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-8 font-mono text-[11px] tracking-[0.16em] text-muted md:px-8">
-          <p>{t.footer}</p>
-          <p>© {new Date().getFullYear()}</p>
+          </p>
         </div>
       </footer>
     </>
+  );
+}
+
+function MoonIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 128 128" aria-hidden>
+      <path
+        fill="#FCC21B"
+        d="M105.87,14.99c-3.74-3.39-7.91-6.38-12.42-8.89c-0.87-0.49-2-0.35-2.71,0.33 c-0.71,0.68-0.83,1.73-0.29,2.53c15.63,22.93,12.29,52.52-8.11,71.97c-11.9,11.35-27.85,17.6-44.91,17.6 c-11.39,0-22.54-2.86-32.24-8.27c-0.87-0.49-2-0.36-2.71,0.33c-0.71,0.68-0.83,1.72-0.28,2.53c2.81,4.12,6.12,7.93,9.86,11.32 c12.61,11.45,29.27,17.76,46.9,17.76c18.27,0,35.34-6.7,48.09-18.86c12.53-11.94,19.31-27.71,19.09-44.4 C125.92,42.25,118.72,26.64,105.87,14.99z"
+      />
+    </svg>
+  );
+}
+
+function SunIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <circle cx="12" cy="12" r="4" fill="#FCC21B" />
+      <path
+        stroke="#FCC21B"
+        strokeWidth="2"
+        strokeLinecap="round"
+        d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+      />
+    </svg>
   );
 }

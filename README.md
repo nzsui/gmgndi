@@ -1,34 +1,28 @@
 # gmgndi
 
-Situs about-me minimalis untuk **gmgndi** — validator, web3 research, liquidity provider (Uniswap & Meteora), dan pembangun komunitas. Sembilan tahun di industri kripto.
+Personal site for **gmgndi** — style inspired by minimal blog layouts (light/dark, Montserrat, simple lists).
 
-## Jalankan lokal
+## Local
 
 ```bash
 npm install
 npm run dev
 ```
 
-Buka [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000).
 
-## Deploy ke Vercel
+## Deploy
 
-1. Commit & push repo ini ke GitHub.
-2. Buka [vercel.com/new](https://vercel.com/new) → Import Project.
-3. Framework Preset: **Next.js** (biarkan default).
-4. Deploy.
-
-Atau dari CLI:
+Import the GitHub repo on [vercel.com/new](https://vercel.com/new) (Next.js defaults), or:
 
 ```bash
 npx vercel
 ```
 
-## Kustomisasi cepat
+## Edit content
 
-| Yang diubah | File |
+| What | Where |
 | --- | --- |
-| Teks ID/EN, narasi, CTA | `lib/content.ts` |
-| Link X / handle | `lib/content.ts` → `socials` |
-| Foto PFP & galeri | `public/images/` |
-| Domain metadata | `app/layout.tsx`, `app/robots.ts`, `app/sitemap.ts` |
+| Copy ID/EN | `lib/content.ts` |
+| X handle | `lib/content.ts` → `socials` |
+| Avatar | `public/images/gmgndi-pfp.png` |
