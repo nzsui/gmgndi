@@ -143,4 +143,21 @@ html.dark ::selection {
   font-size: 0.85rem;
   font-weight: 500;
   vertical-align: middle;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+a.view-chip:hover {
+  color: var(--hover);
+}
+
+a.list-row {
+  color: var(--muted);
+}
+
+a.list-row:hover {
+  color: var(--hover);
+}
+
+a.list-row:hover p {
+  color: var(--subtle);
 }

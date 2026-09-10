@@ -13,6 +13,12 @@ export const copy = {
       lead: "validator, researcher, LP, ICO/IDO & retro — sembilan tahun di kripto.",
       note: "semua yang dibangun di sini tumbuh on-chain ♥️",
     },
+    articles: {
+      title: "Latest Articles",
+      viewAll: "View all",
+      back: "← Kembali",
+      allTitle: "Articles",
+    },
     projects: {
       title: "Projects",
       items: [
@@ -85,6 +91,12 @@ export const copy = {
       title: "Hi, i'm gmgndi",
       lead: "validator, researcher, LP, ICO/IDO & retro — nine years in crypto.",
       note: "everything here grows on-chain ♥️",
+    },
+    articles: {
+      title: "Latest Articles",
+      viewAll: "View all",
+      back: "← Back",
+      allTitle: "Articles",
     },
     projects: {
       title: "Projects",
