@@ -1,18 +1,18 @@
 import type { Lang } from "@/lib/content";
 
+export type PostLocale = {
+  title: string;
+  excerpt: string;
+  body: string[];
+  quote: string;
+  closing: string[];
+};
+
 export type Post = {
   slug: string;
   date: string;
-  id: {
-    title: string;
-    excerpt: string;
-    body: string[];
-  };
-  en: {
-    title: string;
-    excerpt: string;
-    body: string[];
-  };
+  id: PostLocale;
+  en: PostLocale;
 };
 
 export const posts: Post[] = [
@@ -32,7 +32,10 @@ export const posts: Post[] = [
         "Lalu DeFi membuka lantai baru. Likuiditas jadi bahasa. Pool jadi ruang. Uniswap dan protokol sejenisnya membuat pasar terasa lebih dekat ke tangan — sekaligus lebih menuntut tanggung jawab. Menyediakan likuiditas bukan spekulasi spekulan saja; itu duduk di dalam mesin pasar dan menanggung gesekannya.",
         "NFT, L2, Solana, restaking, airdrop, retroactive — setiap siklus membawa kosakata baru. Tapi di bawahnya, pertanyaan lama tetap sama: siapa yang membangun? siapa yang menjaga? siapa yang hanya lewat?",
         "Retroactive, bagi saya, adalah bentuk kesabaran yang aneh. Kamu berinteraksi sebelum reward punya nama. ICO dan IDO adalah keyakinan yang terukur — atau setidaknya seharusnya begitu. Validator adalah janji uptime. Komunitas adalah yang tersisa setelah hype selesai mengucapkan pidatonya.",
-        "Kalau saya harus merangkum sejarah crypto dalam satu kalimat pribadi: ini industri yang terus menguji apakah kamu datang untuk narasi, atau untuk kerja.",
+      ],
+      quote:
+        "Ini industri yang terus menguji apakah kamu datang untuk narasi, atau untuk kerja.",
+      closing: [
         "Sembilan tahun kemudian, saya masih di sini. Bukan karena saya selalu benar. Melainkan karena saya sudah melihat cukup banyak siklus untuk tahu: yang paling berharga jarang datang dari keramaian pertama — ia datang dari orang yang tetap menyalakan mesin ketika semua orang bilang musim sudah selesai.",
       ],
     },
@@ -49,7 +52,10 @@ export const posts: Post[] = [
         "Then DeFi opened another floor. Liquidity became a language. Pools became rooms. Uniswap and similar protocols made markets feel closer to the hand — and more responsible. Providing liquidity is not only speculative theater; it is sitting inside the market machine and carrying its friction.",
         "NFTs, L2s, Solana, restaking, airdrops, retroactives — every cycle brings a new vocabulary. Underneath, the old questions stay the same: who builds? who keeps? who is only passing through?",
         "Retroactive work, to me, is a strange form of patience. You interact before the reward has a name. ICOs and IDOs are measured conviction — or at least they should be. Validators are an uptime promise. Community is what remains after hype finishes its speech.",
-        "If I had to summarize crypto history in one personal sentence: this is an industry that keeps testing whether you came for the narrative, or for the work.",
+      ],
+      quote:
+        "This is an industry that keeps testing whether you came for the narrative, or for the work.",
+      closing: [
         "Nine years later, I am still here. Not because I was always right. But because I have seen enough cycles to know: the most valuable things rarely arrive with the first crowd — they arrive with the people who keep the machines on when everyone else says the season is over.",
       ],
     },

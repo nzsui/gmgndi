@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
+import { Literata, Montserrat } from "next/font/google";
 import "./globals.css";
 
 const montserrat = Montserrat({
@@ -7,6 +7,14 @@ const montserrat = Montserrat({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
 });
+
+const literata = Literata({
+  variable: "--font-literata",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+});
+
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://gmgndi.vercel.app"),
@@ -29,7 +37,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="id" className={`${montserrat.variable} h-full`} suppressHydrationWarning>
+    <html
+      lang="id"
+      className={`${montserrat.variable} ${literata.variable} h-full`}
+      suppressHydrationWarning
+    >
       <head>
         <script
           dangerouslySetInnerHTML={{
